@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>File Upload</title>
+    <style>
+        #upload-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: #f2f2f2;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload a File</h1>
+    <form id="upload-form">
+        <input type="file" id="file-input" name="file">
+        <button type="submit">Upload</button>
+    </form>
+
+    <div id="upload-popup">
+        <p id="upload-message"></p>
+    </div>
+
+    <script>
+        const form = document.getElementById("upload-form");
+        const fileInput = document.getElementById("file-input");
+        const uploadPopup = document.getElementById("upload-popup");
+        const uploadMessage = document.getElementById("upload-message");
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            uploadMessage.textContent = "Uploading file...";
+            showUploadPopup();
+
+            const formData = new FormData();
+            formData.append("file", fileInput.files[0]);
+
+            try {
+                const response = await fetch("http://192.168.1.146:5000/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const data = await response.json();
+                uploadMessage.textContent = `File uploaded: ${data.filename}`;
+            } catch (error) {
+                console.error("Error uploading file:", error);
+                uploadMessage.textContent = "Error uploading file. Please try again.";
+            }
+
+            setTimeout(() => {
+                hideUploadPopup();
+            }, 5000);
+        });
+
+        function showUploadPopup() {
+            uploadPopup.style.display = "block";
+        }
+
+        function hideUploadPopup() {
+            uploadPopup.style.display = "none";
+        }
+    </script>
+</body>
+</html>
